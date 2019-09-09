@@ -1,9 +1,11 @@
 import math
 
-__all__ = ['get_jaro_distance']
-__author__ = 'Jean-Bernard Ratte - jean.bernard.ratte@unary.ca'
+__all__ = ['get_jaro_distance_suffix']
+__author__ = 'Jean-Bernard Ratte - jean.bernard.ratte@unary.ca && Jinzhe-Shan - jinzhes@student.unimleb.edu.au'
 
-""" Find the Jaro Winkler Distance which indicates the similarity score between two Strings.
+""" 2019-09-09 Add JaroWinkerSimSuffix method to get the Jaro Winker Similarity under consideration of suffix
+
+    Find the Jaro Winkler Distance which indicates the similarity score between two Strings.
     The Jaro measure is the weighted sum of percentage of matched characters from each file and transposed characters.
     Winkler increased this measure for matching initial characters.
     This implementation is based on the Jaro Winkler similarity algorithm from
@@ -13,7 +15,7 @@ __author__ = 'Jean-Bernard Ratte - jean.bernard.ratte@unary.ca'
 """
 
 
-def get_jaro_distance(first, second, winkler=True, winkler_ajustment=True, scaling=0.5):
+def get_jaro_distance_suffix(first, second, winkler=True, winkler_ajustment=True, scaling=0.5):
     """
     :param first: word to calculate distance for
     :param second: word to calculate distance with
@@ -28,7 +30,7 @@ def get_jaro_distance(first, second, winkler=True, winkler_ajustment=True, scali
             second.__class__.__name__))
 
     jaro = _score(first, second)
-    cl = min(len(_get_prefix(first, second)), 4)
+    cl = min(len(_get_suffix(first, second)), 4)
 
     if all([winkler, winkler_ajustment]):  # 0.1 as scaling factor
         return round((jaro + (scaling * cl * (1.0 - jaro))) * 100.0) / 100.0
@@ -53,6 +55,34 @@ def _score(first, second):
             float(len(m1) - _transpositions(m1, m2)) / len(m1)) / 3.0
 
 
+def _get_diff_index_suffix(first, second):
+    if first == second:
+        return -1
+
+    if not first or not second:
+        return 0
+
+    max_len = min(len(first), len(second))
+    for i in range(1, max_len+1):
+        if not first[-i] == second[-i]:
+            return i - 1
+
+    return max_len
+
+def _get_suffix(first, second):
+    if not first or not second:
+        return ""
+
+    index = _get_diff_index_suffix(first, second)
+    if index == -1:
+        return first
+
+    elif index == 0:
+        return ""
+
+    else:
+        return first[-index:]
+
 def _get_diff_index(first, second):
     if first == second:
         return -1
@@ -66,7 +96,6 @@ def _get_diff_index(first, second):
             return i
 
     return max_len
-
 
 def _get_prefix(first, second):
     if not first or not second:

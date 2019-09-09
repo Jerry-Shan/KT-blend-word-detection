@@ -17,11 +17,6 @@ __license__ = 'New BSD'
 
 
 import sys
-PY2 = sys.version_info[0] == 2
-
-if PY2:
-    range = xrange
-
 
 def classic_levenshtein(string_1, string_2):
     """
