@@ -6,7 +6,7 @@ import LevenshteinSim
 if __name__ == "__main__":
     # blend = np.array()
     dicts_reader = open("dataset/testdict.txt", "r" )
-    candidates_reader = open("dataset/testcandidates.txt", "r" )
+    candidates_reader = open("dataset/candidates_Initial_Letter_is_C.txt", "r" )
 
     dicts = []
     candidates = []
