@@ -43,7 +43,6 @@ def get_diff_index(first, second):
     for i in range(0, max_len):
         if not first[i] == second[i]:
             return i
-
     return max_len
 
 def picCount_prefix_suffix():
@@ -87,8 +86,8 @@ def picCount_prefix_suffix():
     plt_suffix.savefig("figure/suffixCount.eps")
     plt_suffix.show()
 
-    '''
-    def getGED():
+'''
+def getGED():
         gedFile = open("data_mining/ged_blend.csv", "a+")
         gedFile.write("blend" + "," + "ged" + "," + "gedNormalization" + "\n")
         gedList = []
@@ -104,8 +103,6 @@ def picCount_prefix_suffix():
             "average" + "," + str(sum(gedList) / len(gedList)) + "," + str(sum(gedNormList) / len(gedNormList)) + "\n")
         print("Average GED Normalization : " + str(sum(gedNormList) / len(gedNormList)))
         print("Max GED Normalization : " + str(max(gedNormList)))
-
-
 
 def analizeGED():
     # draw CDF picture about GED and GED Normolization
@@ -134,13 +131,13 @@ def analizeGED():
     # yvals = np.arange(len(sorted_gedNorm)) / float(len(sorted_gedNorm) - 1)
     # plt.plot(sorted_gedNorm, yvals, linewidth=3, color='#0C5DA5')
 
-    fig.savefig('figure/getCDF.png')
+    fig.savefig('figure/getCDF.eps')
     # fig.savefig('figure/getCDF.eps')
     # fig.savefig('figure/getCDF.pdf')
     plt.show()
     print('GED CDF picture is saving')
     plt.close(1)
-
+    
 def getLength():
     df = pd.read_csv("data_mining\ged_blend_v2_average.csv")
     blend = df['blend'].values
@@ -172,6 +169,7 @@ def getLength():
 
 
 if __name__ == "__main__":
+
      blends_reader = open("dataset/blends.txt","r")
      blendsList = []
      comb_1List = []
@@ -201,14 +199,13 @@ if __name__ == "__main__":
      # How many same prefix and suffix letters in blends ?
      picCount_prefix_suffix()
 
-
-    # '''
     #  #Mining 2:
     #  # How much the Global Edit Distance between blends and their combinations?
     #  # getGED()
     #  analizeGED()
     #  getLength()
     # '''
+    # analizeGED()
 
 
 

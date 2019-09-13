@@ -1,5 +1,3 @@
-import numpy
-
 __author__ = 'Jinzhe-Shan - jinzhes@student.unimleb.edu.au'
 '''
 Version Description
@@ -30,6 +28,7 @@ After using prefix tree, the cumputing efficiency of coding is much faster
 
 '''
 import heapq
+import numpy
 from pytrie import SortedStringTrie as Trie
 import JaroWinkerSim
 import JaroWinkerSimSuffix
@@ -40,17 +39,14 @@ if __name__ == "__main__":
     start = datetime.datetime.now()
     print("KT assignment 1 starts from " + str(start))
 
-    # blends_reader = open("dataset/blends.txt","r")
     blends_reader = open("dataset/blends.txt","r")
     dicts_reader = open("dataset/dict_removing_algorithm.txt", "r" )
-    # candidates_reader = open("dataset/candidates_After_Removing_Algorithm.txt", "r")
     candidates_reader = open("dataset/candidates_After_Removing_Algorithm-upperHalf.txt", "r")
 
     blends = []
     candidates = []
     dictTrie = Trie()
     dictReverseTrie = Trie()
-    # candidateTrie = Trie()
 
     for line in blends_reader:
         blend = line.split('\t')[0]
@@ -59,14 +55,13 @@ if __name__ == "__main__":
     for line in candidates_reader:
         candidates.append(line.split('\n')[0])
 
+    # create prefix dict tree and suffix dict tree
     for line in dicts_reader:
         dict = line.split('\n')[0]
         dictTrie[dict] = 0
         dictReverseTrie[dict[::-1]] = 1
 
-    # end1 = datetime.datetime.now()
-    # print("create list and trie need :" + str(end1 - start))
-
+    # get prefix and suffix
     def getPrefixList(str):
         prefixList = []
         if dictTrie.longest_prefix(str, default=-1) != -1:
@@ -89,34 +84,18 @@ if __name__ == "__main__":
         else:
             return str
 
-
-    # debug testing : getSuffixList("caceres")
-    # print(getSuffixList("cabeza"))
-    # print("prefix:")
-    # print(getPrefixList('abcdef'))
-    # print("suffix")
-    # print(getSuffixList("abcd"))
-
-    # '''
     dictectBlendList = []
-    i = 0
-    percent = 0
+
+    # the main structure of Blend Word Detection Algorithm
     for candidate in candidates:
-        i += 1
-        if i == 124 :
-            i = 0
-            percent += 1
-            print("processing is done :" + str(percent) + "%")
-        # canStartTime = datetime.datetime.now()
+        # get prefix and suffix
         prefixDict = {}
         suffixDict = {}
         combDict = {}
         prefixList = getPrefixList(candidate)
         suffixList = getSuffixList(candidate)
 
-        # presuffixTime = datetime.datetime.now()
-        # print("Get prefix and suffix need :")
-        # print(presuffixTime - canStartTime)
+        # culcalate the jaro-winker similarity
         for prefix in prefixList:
             simjw = JaroWinkerSim.get_jaro_distance(prefix, candidate)
             prefixDict[prefix] = simjw
@@ -125,40 +104,24 @@ if __name__ == "__main__":
             simjw_suffix = JaroWinkerSimSuffix.get_jaro_distance_suffix(suffix, candidate)
             suffixDict[suffix] = simjw_suffix
 
-        # JaroTime = datetime.datetime.now()
-        # print("Get Jaro winker sim need :")
-        # print(JaroTime - presuffixTime)
-        # ranking the prefix and suffix dicts by value and then get top 5 String
-        # prefixDictRanking = sorted(prefixDict.items(), key=lambda d:d[1], reverse = True)
-        # I tested top5, top10 and top20. The more top number I tested, the lower the system detection precision rate was,
-        prefixDictTop5 = heapq.nlargest(10, prefixDict, key=prefixDict.get)
-        suffixDictTop5 = heapq.nlargest(10, suffixDict, key=suffixDict.get)
+        # get top 10 prefix words and suffix words and combine them to 100 combined strings
+        prefixDictTop10 = heapq.nlargest(10, prefixDict, key=prefixDict.get)
+        suffixDictTop10 = heapq.nlargest(10, suffixDict, key=suffixDict.get)
         combList = []
-        for prefix in prefixDictTop5:
-            for suffix in suffixDictTop5:
+        for prefix in prefixDictTop10:
+            for suffix in suffixDictTop10:
                 comb = prefix+suffix
                 # remove some impossible combinations
                 if len(comb)>2.5*len(candidate) or len(comb)<0.6*len(candidate):
                     continue
                 combList.append(comb)
-                # combDict[prefix,suffix] = prefix+suffix
-        # combList = list(combDict.values())
-        # print(candidate + ":")
-        # print("pre:" + str(prefixDictTop5))
-        # print("suf:" + str(suffixDictTop5))
-        # print(combDict)
-        # print("comblist len is " +str(len(combList)))
+
+        # Detection whether a candidate is a blend word or not
         combSimNormList = []
         for comb in combList:
                 combSimNormList.append(LevenshteinSim.recursive_levenshtein(candidate,comb)/len(comb))
         if len(combSimNormList)!=0 and min(combSimNormList) < 0.6:
             dictectBlendList.append(candidate)
-        # canEndTime = datetime.datetime.now()
-        # print("One candidate need : " +str(canEndTime - canStartTime))
-        # print("candidate is " + candidate)
-        # print(combSimList)
-    # print(dictectBlendList)
-    # print("the number of blend words : " + str(len(dictectBlendList)))
 
     countBlend = 0
     trueBlends = []
@@ -166,7 +129,8 @@ if __name__ == "__main__":
         if blend in blends:
             trueBlends.append(blend)
             countBlend +=1
-    # precision
+
+    # precision recall
     precision = round(countBlend / len(dictectBlendList),4)
     recall = round(countBlend / len(blends),4)
 
